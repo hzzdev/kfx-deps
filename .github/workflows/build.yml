@@ -1402,3 +1402,51 @@ jobs:
             ${{github.workspace}}/tomlc99-lin64.tar.gz
             ${{github.workspace}}/enet6-lin64.tar.gz
             ${{github.workspace}}/libcurl-lin64.tar.gz
+
+  SDL2-devel-mingw:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install mingw-w64
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends mingw-w64 patch cmake
+      - name: Checkout Project
+        uses: actions/checkout@v4
+      - name: Download and Extract SDL2 Source
+        run: |
+          curl -L https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.30.7.tar.gz -o SDL-release-2.30.7.tar.gz
+          mkdir -p sdl2-src
+          tar -xzf SDL-release-2.30.7.tar.gz -C sdl2-src --strip-components=1
+      - name: Download and Apply Patch
+        run: |
+          curl -L https://github.com/libsdl-org/SDL/commit/dac6af4ba6815fd88364820c48f55c878575d5bf.patch -o SDL-issue-13700.patch
+          patch -p1 -d sdl2-src < SDL-issue-13700.patch
+      - name: Build SDL2 MinGW 32-bit
+        run: |
+          cmake \
+            -B ${{github.workspace}}/sdl2-src/build/mingw32 \
+            -S ${{github.workspace}}/sdl2-src \
+            -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/mingw32.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/sdl2-out/SDL2-2.30.7/i686-w64-mingw32" \
+            -DCMAKE_C_FLAGS="-O3 -s"
+          cmake --build "${{github.workspace}}/sdl2-src/build/mingw32" --config Release
+          cmake --install "${{github.workspace}}/sdl2-src/build/mingw32"
+      - name: Build SDL2 MinGW 64-bit
+        run: |
+          cmake \
+            -B ${{github.workspace}}/sdl2-src/build/mingw64 \
+            -S ${{github.workspace}}/sdl2-src \
+            -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/mingw64.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/sdl2-out/SDL2-2.30.7/x86_64-w64-mingw32" \
+            -DCMAKE_C_FLAGS="-O3 -s"
+          cmake --build "${{github.workspace}}/sdl2-src/build/mingw64" --config Release
+          cmake --install "${{github.workspace}}/sdl2-src/build/mingw64"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SDL2-devel-2.30.7-mingw
+          path: |
+            ${{github.workspace}}/sdl2-out
+
