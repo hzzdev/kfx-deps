@@ -1189,6 +1189,7 @@ jobs:
       - tomlc99-lin64
       - enet6-lin64
       - libcurl-lin64
+      - SDL2-devel-mingw
     steps:
       - name: Download zlib-mingw32
         uses: actions/download-artifact@v4
@@ -1336,6 +1337,11 @@ jobs:
         with:
           name: libcurl-lin64
           path: ${{github.workspace}}/libcurl-lin64
+      - name: Download SDL2-devel-mingw
+        uses: actions/download-artifact@v4
+        with:
+          name: SDL2-devel-2.30.7-mingw
+          path: ${{github.workspace}}/SDL2-devel-2.30.7-mingw
       - name: Create tarballs
         run: |
           tar czf ${{github.workspace}}/zlib-mingw32.tar.gz -C ${{github.workspace}}/zlib-mingw32 .
@@ -1367,6 +1373,7 @@ jobs:
           tar czf ${{github.workspace}}/tomlc99-lin64.tar.gz -C ${{github.workspace}}/tomlc99-lin64 .
           tar czf ${{github.workspace}}/enet6-lin64.tar.gz -C ${{github.workspace}}/enet6-lin64 .
           tar czf ${{github.workspace}}/libcurl-lin64.tar.gz -C ${{github.workspace}}/libcurl-lin64 .
+          tar czf ${{github.workspace}}/SDL2-devel-2.30.7-mingw.tar.gz -C ${{github.workspace}}/SDL2-devel-2.30.7-mingw SDL2-2.30.7
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -1402,6 +1409,7 @@ jobs:
             ${{github.workspace}}/tomlc99-lin64.tar.gz
             ${{github.workspace}}/enet6-lin64.tar.gz
             ${{github.workspace}}/libcurl-lin64.tar.gz
+            ${{github.workspace}}/SDL2-devel-2.30.7-mingw.tar.gz
 
   SDL2-devel-mingw:
     runs-on: ubuntu-24.04
